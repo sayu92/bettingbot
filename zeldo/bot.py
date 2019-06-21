@@ -8,7 +8,7 @@ import socket
 import re
 import time, threading
 from time import sleep
-
+from bettingbot import *
 
 def main():
     # Networking functions
@@ -39,8 +39,10 @@ def main():
             message = CHAT_MSG.sub("", response)
             print(response)
 
-            if message.strip() == "!message":
-                utils.chat(s,"Bonjour à la communauté des fruits")
+            if message.strip() == "!openbet"  and utils.isOp(username) :
+                utils.chat(s,"Bet ouvert")
+                nvbet = Bet()
+                nvbet.openBet()
         sleep(1)
 
 if __name__ == "__main__":
