@@ -43,6 +43,10 @@ def main():
                 utils.chat(s,"Bet ouvert")
                 nvbet = Bet()
                 nvbet.openBet()
+
+            if message.strip() == "test" :
+                print(cfg.oplist)
+                
         sleep(1)
 
 if __name__ == "__main__":

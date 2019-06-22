@@ -2,7 +2,7 @@
 # A bunch of utility functions
 
 import cfg
-import urllib3, json
+import urllib.request, json
 import time, threading
 from time import sleep
 import re
@@ -35,24 +35,29 @@ def timeout(sock, user, seconds=600):
 # Function: threadFillOpList
 # In a separate thread, fill up the op list
 def threadFillOpList():
+    print("thread 1")
     while True:
         try:
-            url = "http://tmi.twitch.tv/group/user/limeoats/chatters"
-            req = urllib2.Request(url, headers={"accept": "*/*"})
-            response = urllib3.urlopen(req).read()
-            if response.find("502 Bad Gateway") == -1:
-                cfg.oplist.clear()
-                data = json.loads(response)
-                for p in data["chatters"]["moderators"]:
-                    cfg.oplist[p] = "mod"
-                for p in data["chatters"]["global_mods"]:
-                    cfg.oplist[p] = "global_mod"
-                for p in data["chatters"]["admins"]:
-                    cfg.oplist[p] = "admin"
-                for p in data["chatters"]["staff"]:
-                    cfg.oplist[p] = "staff"
+            url = "http://tmi.twitch.tv/group/user/sayu92/chatters"
+            req = urllib.request.Request(url)
+            response = urllib.request.urlopen(req).read()
+
+            #if response.find("502 Bad Gateway") == -1:
+                #cfg.oplist.clear()
+            data = json.loads(response)
+            print("rentr")
+            for p in data["chatters"]["moderators"]:
+                cfg.oplist[p] = "mod"
+            for p in data["chatters"]["global_mods"]:
+                cfg.oplist[p] = "global_mod"
+            for p in data["chatters"]["admins"]:
+                cfg.oplist[p] = "admin"
+            for p in data["chatters"]["staff"]:
+                cfg.oplist[p] = "staff"
+            for p in data["chatters"]["broadcaster"]:
+                cfg.oplist[p] = "broadcaster"
         except:
-            'do nothing'
+            pass
         sleep(5)
 
 def isOp(user):
