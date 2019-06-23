@@ -33,6 +33,10 @@ def main():
     # threading.start_new_thread(utils.threadFillOpList, ())
     x = threading.Thread(target=utils.threadFillOpList)
     x.start()
+
+    ## Demarrage du module de paris
+    nvbet = Bet()
+
     ##    commands = sql.getCommands()
 
     ##    cmd = []
