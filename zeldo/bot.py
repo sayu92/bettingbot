@@ -6,9 +6,18 @@ import utils
 ##import sql
 import socket
 import re
+import scratch
 import time, threading
 from time import sleep
 from bettingbot import *
+
+
+def isCommand(message):
+    if message.strip()[0] == '!':
+        return True
+    else:
+        return False
+
 
 def main():
     # Networking functions
@@ -21,15 +30,15 @@ def main():
     CHAT_MSG = re.compile(r"^:\w+!\w+@\w+\.tmi\.twitch\.tv PRIVMSG #\w+ :")
     utils.chat(s, "Hi everyone!")
 
-    #threading.start_new_thread(utils.threadFillOpList, ())
+    # threading.start_new_thread(utils.threadFillOpList, ())
     x = threading.Thread(target=utils.threadFillOpList)
     x.start()
-##    commands = sql.getCommands()
+    ##    commands = sql.getCommands()
 
-##    cmd = []
-##    for c in commands:
-##        cmd.append(Command(c["Command"], c["Response"], c["Description"], c["Op"]))
-##
+    ##    cmd = []
+    ##    for c in commands:
+    ##        cmd.append(Command(c["Command"], c["Response"], c["Description"], c["Op"]))
+    ##
     while True:
         response = s.recv(1024).decode("utf-8")
         if response == "PING :tmi.twitch.tv\r\n":
@@ -39,15 +48,23 @@ def main():
             message = CHAT_MSG.sub("", response)
             print(response)
 
-            if message.strip() == "!openbet"  and utils.isOp(username) :
-                utils.chat(s,"Bet ouvert")
-                nvbet = Bet()
-                nvbet.openBet()
+            if isCommand(message):
+                command_name = message.split()[0]
+                arguments = message.split()[1:]
 
-            if message.strip() == "test" :
+                if command_name in scratch.cmd2.keys():
+                    number_arguments = scratch.cmd2[command_name].arg
+                    scratch.cmd2[command_name].myFunction()
+
+                else:
+                    print("Commande non répertoriée")
+
+
+            if message.strip() == "test":
                 print(cfg.oplist)
-                
+
         sleep(1)
+
 
 if __name__ == "__main__":
     main()

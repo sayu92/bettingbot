@@ -7,6 +7,7 @@ import time, threading
 from time import sleep
 import re
 
+
 # Function: chat
 # Send a chat message to the server.
 #    Parameters:
@@ -14,6 +15,7 @@ import re
 #      msg  -- the message to send
 def chat(sock, msg):
     sock.send("PRIVMSG #{} :{}\r\n".format(cfg.CHAN, msg).encode('utf-8'))
+
 
 # Function: ban
 # Ban a user from the channel
@@ -23,6 +25,7 @@ def chat(sock, msg):
 def ban(sock, user):
     chat(sock, ".ban {}".format(user))
 
+
 # Function: timeout
 # Timeout a user for a set period of time
 #   Parameters:
@@ -31,6 +34,7 @@ def ban(sock, user):
 #       seconds -- the length of the timeout in seconds (default 600)
 def timeout(sock, user, seconds=600):
     chat(sock, ".timeout {}".format(user, seconds))
+
 
 # Function: threadFillOpList
 # In a separate thread, fill up the op list
@@ -42,8 +46,8 @@ def threadFillOpList():
             req = urllib.request.Request(url)
             response = urllib.request.urlopen(req).read()
 
-            #if response.find("502 Bad Gateway") == -1:
-                #cfg.oplist.clear()
+            # if response.find("502 Bad Gateway") == -1:
+            cfg.oplist.clear()
             data = json.loads(response)
             print("rentr")
             for p in data["chatters"]["moderators"]:
@@ -59,6 +63,7 @@ def threadFillOpList():
         except:
             pass
         sleep(5)
+
 
 def isOp(user):
     return user in cfg.oplist
