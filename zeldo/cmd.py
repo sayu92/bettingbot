@@ -1,3 +1,4 @@
-comd={
-   "!openbet":{"Command":truc() ,"Needmod":0} 	
+import bettingbot
+com={
+   "!openbet": {"fun": bettingbot.Bet.openBet, "Needmod": 0, "arg": 0}
 }

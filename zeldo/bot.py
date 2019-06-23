@@ -54,7 +54,11 @@ def main():
 
                 if command_name in scratch.cmd2.keys():
                     number_arguments = scratch.cmd2[command_name].arg
-                    scratch.cmd2[command_name].myFunction()
+
+                    if number_arguments > 0:
+                        scratch.cmd2[command_name].myFunction()
+                    else:
+                        scratch.cmd2[command_name].myFunction()
 
                 else:
                     print("Commande non répertoriée")

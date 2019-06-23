@@ -1,11 +1,9 @@
 import json
+import bettingbot
+import cmd
 
-chaine = "  !coucou je sui sun etst de command"
 
-print(chaine.split()[0])
-print(chaine.split()[1:])
-
-resp = "!openbet"
+cmd2 = {}
 
 
 class Command:
@@ -16,12 +14,14 @@ class Command:
         self.arg = arg
 
 
+for i in cmd.com.keys():
+    cmd2[i] = Command(cmd.com[i]["fun"], cmd.com[i]["Needmod"], cmd.com[i]["arg"])
+
+
 def truc(x):
     print("truc active", x)
 
 
 if __name__ == '__main__':
-    c = Command(truc, 0, 1)
 
-    cmd2 = {"!openbet": c}
-    cmd2["!openbet"].myFunction("Hihihihihihihi")
+    cmd2["!openbet"].myFunction()
