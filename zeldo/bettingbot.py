@@ -7,11 +7,18 @@ Created on Thu Jun 20 16:24:50 2019
 """
 import math
 import json
+import utils
+
 
 # ajouter les exceptions lorsqu'une valeur negative est ajoutee, float , ou autre structure
-# devoir close bet avant de faire result
+# devoir close bet avant de faire result -
 # erreur lorsqu on pari alors qu un bet en cours
 # quand mettre a jour le fichier
+# rajouer une commande pour voir l etat actuel du bet (somme pariés, cote etc)
+# tester la fonction cancel bet
+# rajouter le mot clef "all" execption "ValueError"
+# vérifier les droits requis pour certaines commandes x
+# message de confimration lorsqu un bet a été réalisé
 
 # soldes_des_joueurs = {'manie' : 100 , 'riki' : 50, 'jakiro' : 120}
 
@@ -19,49 +26,52 @@ import json
 #    soldes_des_joueurs = json.loads(request.POST['mydata'])
 # else:
 #    soldes_des_joueurs = {} # or data = None
-file = open('soldes_joueurs.json', 'r')
-
-try:
-    soldes_des_joueurs = json.load(file)
-    file.close()
-
-except json.JSONDecodeError:
-    soldes_des_joueurs = {}
-    file.close()
-
 
 class Bet:
     on_going_bet = False
 
-    def __init__(self, bet_interest=0.5):
+    def __init__(self, soldes_des_joueurs, socket, bet_interest=0.5):
 
         Bet.on_going_bet = False
+        self.socket = socket
+
         self.is_open = False
         self.bet_interest = bet_interest
         self.total_amount = 0
         self.number_betteur = 0
         self.compte = {}
-        self.predictions = {'win': [],'lose': []}  # 'lose' : [list des joueurs ayant predit la defaite] 'win' : [list des
+        self.predictions = {'win': [],
+                            'lose': []}  # 'lose' : [list des joueurs ayant predit la defaite] 'win' : [list des
         # joeurs pariant sur la victoire]
 
         self.soldes = soldes_des_joueurs.copy()
 
-    def __del__(self):
-        Bet.on_going_bet = False
-        print("noooon")
+    #    def __del__(self):
+    #        Bet.on_going_bet = False
+    #        print("noooon")
 
     def openBet(self):
         ## Ouvrir une session de paris ##
-        Bet.on_going_bet = True
-        self.is_open = True
+        if Bet.on_going_bet == False and False == self.is_open:
+            Bet.on_going_bet = True
+            self.is_open = True
+            utils.chat(self.socket, "Les paris sont ouverts !!")
+        elif self.is_open:
+            utils.chat(self.socket, "Il est toujours possible de miser pour le pari en cours")
+        else:
+            utils.chat(self.socket, "Les résultats du pari en cours n'ont toujours pas été rentrés")
 
-        print("Faites vos jeux !!")
 
     def closeBet(self):
         ## Fermer l'acces aux paris ##
-        self.is_open = False
+        if self.is_open:
+            self.is_open = False
+            utils.chat(self.socket, "Les jeux sont faits, rien ne va plus !!")
+        elif Bet.on_going_bet:
+            utils.chat(self.socket, "La phase de paris a déjà été cloturé")
+        else:
+            utils.chat(self.socket, "Aucune session de paris n'a été ouverte")
 
-        print("Les jeux sont faits, rien ne va plus !")
 
     def firstTimeBet(self, name):
         if name not in self.soldes:
@@ -69,13 +79,15 @@ class Bet:
         else:
             return False
 
+
     def soldIsOK(self, name, amount):
 
         if amount > self.soldes[name]:  # Verifie si le joueur possede la somme avancee ##
-            print('Vas travailler {} au lieu de depenser l\'argent que t\'as pas'.format(name))
+            utils.chat(self.socket, "Vas travailler {} au lieu de depenser l\'argent que t\'as pas".format(name))
             return False
         else:
             return True
+
 
     def addBetteur(self, name, joueur_prediction, amount):
         ## Ajouter un joueur ##
@@ -99,11 +111,21 @@ class Bet:
         else:
 
             if Bet.on_going_bet:
-                print('Les jeux sont deja fermes')
+                utils.chat(self.socket, 'Les jeux sont deja fermes')
             else:
-                print("Aucun pari en cours")
+                utils.chat(self.socket, "Aucun pari en cours")
 
     def soldUpdate(self):
+        file = open('soldes_joueurs.json', 'r')
+
+        try:
+            soldes_des_joueurs = json.load(file)
+            file.close()
+
+        except json.JSONDecodeError:
+            soldes_des_joueurs = {}
+            file.close()
+
         for joueur, somme in self.soldes.items():
 
             if somme > 0:
@@ -115,57 +137,78 @@ class Bet:
             json.dump(soldes_des_joueurs, json_file)
 
     def result(self, resultat):  # Envoie d erreur si mauvais input
+        if Bet.on_going_bet and not self.is_open:
+            if resultat == "win":
+                winner = "win"
+                loser = "lose"
+            else:
+                winner = "lose"
+                loser = "win"
 
-        if resultat == "win":
-            winner = "win"
-            loser = "lose"
+            amount_to_distribut = 0
+            amount_bet_win = 0
+
+            list_losers = self.predictions[loser]
+            list_winners = self.predictions[winner]
+            best = []
+            worst = []
+
+            for joueur in list_losers:
+                amount_to_distribut += self.compte[joueur]
+                worst.append((joueur, self.compte[joueur]))
+
+            for joueur in list_winners:  # On recredite le joueur de son pari
+                self.soldes[joueur] += self.compte[joueur]
+                amount_bet_win += self.compte[joueur]
+
+            for joueur in list_winners:  # Calcul des gains supplementaires
+                gain = math.floor(amount_to_distribut * self.compte[joueur] / amount_bet_win) + max(
+                    math.floor(self.bet_interest * self.compte[joueur]), 1)
+                self.soldes[joueur] += gain
+                best.append((joueur, gain))
+
+            best.sort(key=lambda x: x[1], reverse=True)  # Pour afficher les meilleurs performances lors du bet
+            worst.sort(key=lambda x: x[1])
+
+            mess1 = "Les MVP sont : "
+            for i in range(len(best)):
+                mess1 += "{} +{}, ".format(best[i][0], best[i][1])
+                utils.chat(self.socket, mess1)
+
+            mess2 = "Plz report : "
+            for i in range(len(worst)):
+                mess2 += "{} -{}, ".format(worst[i][0], worst[i][1])
+            utils.chat(self.socket, mess2)
+
+            self.soldUpdate()
+
+            Bet.on_going_bet = False
+            self.is_open = False               # on supprime le bet a la fin des paris
+            self.total_amount = 0
+            self.number_betteur = 0
+            self.compte = {}
+            self.predictions = {'win': [],
+                                'lose': []}  # 'lose' : [list des joueurs ayant predit la defaite] 'win' : [list des
+        elif self.is_open:
+            utils.chat(self.socket, "Les phases de paris n'ont pas été cloturées")
+
         else:
-            winner = "lose"
-            loser = "win"
+            utils.chat(self.socket, "Aucune seesion de paris n'a été ouverte")
 
-        amount_to_distribut = 0
-        amount_bet_win = 0
-
-        list_losers = self.predictions[loser]
-        list_winners = self.predictions[winner]
-        best = []
-        worst = []
-
-        for joueur in list_losers:
-            amount_to_distribut += self.compte[joueur]
-            worst.append((joueur, self.compte[joueur]))
-
-        for joueur in list_winners:  # On recredite le joueur de son pari
-            self.soldes[joueur] += self.compte[joueur]
-            amount_bet_win += self.compte[joueur]
-
-        for joueur in list_winners:  # Calcul des gains supplementaires
-            gain = math.floor(amount_to_distribut * self.compte[joueur] / amount_bet_win) + max(
-                math.floor(self.bet_interest * self.compte[joueur]), 1)
-            self.soldes[joueur] += gain
-            best.append((joueur, gain))
-
-        best.sort(key=lambda x: x[1], reverse=True)  # Pour afficher les meilleurs performances lors du bet
-        worst.sort(key=lambda x: x[1])
-
-        mess1 = "Les gagnants sont : "
-        for i in range(len(best)):
-            mess1 += "{} +{}, ".format(best[i][0], best[i][1])
-
-        print(mess1)
-
-        mess2 = "Les noobs sont : "
-        for i in range(len(worst)):
-            mess2 += "{} -{}, ".format(worst[i][0], worst[i][1])
-        print(mess2)
-
-        self.soldUpdate()
-
-        self.__init__()  # on supprime le bet a la fin des paris
 
     def cancelBet(self):
-        self.__init__()
-        print("Le pari est annule")
+        Bet.on_going_bet = False
+        self.is_open = False
+        self.total_amount = 0
+        self.number_betteur = 0
+        self.predictions = {'win': [],
+                            'lose': []}  # 'lose' : [list des joueurs ayant predit la defaite] 'win' : [list des
+        # joeurs pariant sur la victoire]
+
+        for people, amount in self.compte:
+            self.soldes[people] += amount
+
+        utils.chat(self.socket, "Session de paris annulée")
 
 
 if __name__ == '__main__':
@@ -178,6 +221,7 @@ if __name__ == '__main__':
     #
     #    print(nvbet.compte)
     #
+
     nvbet.addBetteur("riki", 'win', 1)
     nvbet.addBetteur("manie", 'lose', 1)
     nvbet.addBetteur("jakiro", 'win', 1)

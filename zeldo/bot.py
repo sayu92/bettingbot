@@ -2,6 +2,7 @@
 # The code for our bot
 
 import cfg
+import cmd
 import utils
 ##import sql
 import socket
@@ -17,6 +18,16 @@ def isCommand(message):
         return True
     else:
         return False
+
+
+def runCommand(sock, command):
+    arguments = command.split()[1:]
+
+    try:
+        eval(command)
+    except:
+        utils.chat(sock, "Erreur dans l'exécution de la commande")
+
 
 
 def main():
@@ -35,14 +46,22 @@ def main():
     x.start()
 
     ## Demarrage du module de paris
-    nvbet = Bet()
+    file = open('soldes_joueurs.json', 'r')
 
-    ##    commands = sql.getCommands()
+    try:
+        soldes_des_joueurs = json.load(file)
+        file.close()
 
-    ##    cmd = []
-    ##    for c in commands:
-    ##        cmd.append(Command(c["Command"], c["Response"], c["Description"], c["Op"]))
-    ##
+    except json.JSONDecodeError:
+        soldes_des_joueurs = {}
+        file.close()
+
+    nvbet = Bet(soldes_des_joueurs, s)
+
+    cmd2 = {}
+    for i in cmd.com.keys():  # on met dans un dictionnaire l ensemble des commande
+        cmd2[i] = scratch.Command(cmd.com[i]["fun"], cmd.com[i]["Needmod"], cmd.com[i]["arg"])
+
     while True:
         response = s.recv(1024).decode("utf-8")
         if response == "PING :tmi.twitch.tv\r\n":
@@ -54,19 +73,18 @@ def main():
 
             if isCommand(message):
                 command_name = message.split()[0]
-                arguments = message.split()[1:]
 
-                if command_name in scratch.cmd2.keys():
-                    number_arguments = scratch.cmd2[command_name].arg
+                if command_name in cmd2.keys():     # Vérification si la commande est dans le dictionnaire des commandes
 
-                    if number_arguments > 0:
-                        scratch.cmd2[command_name].myFunction()
+                    if cmd2[command_name].ismod:    # Vérification de s'il s'agit d'une commande ayant besoin de droit de modération
+                        if utils.isOp(username):
+                            runCommand(s, cmd2[command_name].myFunction)
+
                     else:
-                        scratch.cmd2[command_name].myFunction()
+                        runCommand(s, cmd2[command_name].myFunction)
 
                 else:
                     print("Commande non répertoriée")
-
 
             if message.strip() == "test":
                 print(cfg.oplist)

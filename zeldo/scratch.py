@@ -1,9 +1,9 @@
-import json
+
 import bettingbot
-import cmd
 
 
-cmd2 = {}
+
+
 
 
 class Command:
@@ -14,8 +14,7 @@ class Command:
         self.arg = arg
 
 
-for i in cmd.com.keys():
-    cmd2[i] = Command(cmd.com[i]["fun"], cmd.com[i]["Needmod"], cmd.com[i]["arg"])
+
 
 
 def truc(x):
@@ -24,4 +23,9 @@ def truc(x):
 
 if __name__ == '__main__':
 
-    cmd2["!openbet"].myFunction()
+    nvbet = bettingbot.Bet()
+    #nvbet.openBet() POURQUOI CA MARCHE ET PAS BESOIN DE FAIRE UN .BETTINGBOT-> A RESSAYER SANS LE EVAL
+    print(cmd2["!openbet"].myFunction)
+
+    chain = "coucou"
+    print(eval(chain))

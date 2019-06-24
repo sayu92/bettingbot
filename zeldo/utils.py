@@ -49,7 +49,7 @@ def threadFillOpList():
             # if response.find("502 Bad Gateway") == -1:
             cfg.oplist.clear()
             data = json.loads(response)
-            print("rentr")
+
             for p in data["chatters"]["moderators"]:
                 cfg.oplist[p] = "mod"
             for p in data["chatters"]["global_mods"]:
