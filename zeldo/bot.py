@@ -20,15 +20,6 @@ def isCommand(message):
         return False
 
 
-def runCommand(sock, command):
-    arguments = command.split()[1:]
-
-    try:
-        eval(command)
-    except:
-        utils.chat(sock, "Erreur dans l'exécution de la commande")
-
-
 
 def main():
     # Networking functions
@@ -59,8 +50,9 @@ def main():
     nvbet = Bet(soldes_des_joueurs, s)
 
     cmd2 = {}
-    for i in cmd.com.keys():  # on met dans un dictionnaire l ensemble des commande
+    for i in cmd.com.keys(): # on met dans un dictionnaire l ensemble des commande
         cmd2[i] = scratch.Command(cmd.com[i]["fun"], cmd.com[i]["Needmod"], cmd.com[i]["arg"])
+
 
     while True:
         response = s.recv(1024).decode("utf-8")
@@ -74,14 +66,23 @@ def main():
             if isCommand(message):
                 command_name = message.split()[0]
 
-                if command_name in cmd2.keys():     # Vérification si la commande est dans le dictionnaire des commandes
+                if command_name in cmd2.keys():      # Vérification de si la commande se situe dans le dictionnaire
 
-                    if cmd2[command_name].ismod:    # Vérification de s'il s'agit d'une commande ayant besoin de droit de modération
+                    if cmd2[command_name].ismod:      # Vérification si la commande nécéssite des droits spéciaux
+
                         if utils.isOp(username):
-                            runCommand(s, cmd2[command_name].myFunction)
+                            arguments = message.split()[1:]
+                            try:
+                                eval(cmd2[command_name].myFunction)
+                            except:
+                                utils.chat(s, "Erreur lors de l'exécution de la commande")     # Essayer de remplacer ce bloc par une fonction
 
                     else:
-                        runCommand(s, cmd2[command_name].myFunction)
+                        arguments = message.split()[1:]
+                        try:
+                            eval(cmd2[command_name].myFunction)
+                        except:
+                            utils.chat(s, "Erreur lors de l'exécution de la commande")
 
                 else:
                     print("Commande non répertoriée")
