@@ -70,6 +70,13 @@ class Bet:
             utils.chat(self.socket, "Aucune session de paris n'a été ouverte")
 
 
+    def statusBet(self):
+
+        if Bet.on_going_bet:
+            return "Mises actuelles : ( win: {} | lose: {} )".format(self.total_amount["win"], self.total_amount["lose"])
+
+
+
     def firstTimeBet(self, name):
         if name not in self.soldes:
             return True
@@ -115,6 +122,8 @@ class Bet:
 
                 else:
                     self.compte[name] += amount  # Si le joueur rencherit, on l ajoute
+
+                utils.chat(self.socket, "" + self.statusBet())  # Affichage de l etats des paris si la mise est bien prise en compte
 
         else:
 
@@ -181,15 +190,18 @@ class Bet:
             best.sort(key=lambda x: x[1], reverse=True)  # Pour afficher les meilleurs performances lors du bet
             worst.sort(key=lambda x: x[1])
 
-            mess1 = "Les MVP sont : "
+            mess1 = "MVP PogChamp : "
             for i in range(len(best)):
                 mess1 += "{} +{}, ".format(best[i][0], best[i][1])
-                utils.chat(self.socket, mess1)
 
-            mess2 = "Plz report : "
+
+            mess1 += " | Plz report SwiftRage : "
             for i in range(len(worst)):
-                mess2 += "{} -{}, ".format(worst[i][0], worst[i][1])
-            utils.chat(self.socket, mess2)
+                mess1 += "{} -{}, ".format(worst[i][0], worst[i][1])
+
+
+            utils.chat(self.socket, mess1)
+
 
             self.soldUpdate()
 
@@ -219,7 +231,9 @@ class Bet:
         for people, amount in self.compte:
             self.soldes[people] += amount
 
-        utils.chat(self.socket, "Session de paris annulée")
+        utils.chat(self.socket, "Session de paris annulée BibleThump")
+
+
 
 
 if __name__ == '__main__':
