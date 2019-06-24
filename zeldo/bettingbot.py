@@ -37,7 +37,7 @@ class Bet:
 
         self.is_open = False
         self.bet_interest = bet_interest
-        self.total_amount = 0
+        self.total_amount = {"win": 0, "lose": 0}
         self.number_betteur = 0
         self.compte = {}
         self.predictions = {'win': [],
@@ -46,9 +46,6 @@ class Bet:
 
         self.soldes = soldes_des_joueurs.copy()
 
-    #    def __del__(self):
-    #        Bet.on_going_bet = False
-    #        print("noooon")
 
     def openBet(self):
         ## Ouvrir une session de paris ##
@@ -93,12 +90,23 @@ class Bet:
         ## Ajouter un joueur ##
         if self.is_open:
 
+            ## Verification si les arguments sont correctements rentrés ##
+            if joueur_prediction != "win" and joueur_prediction != "lose":
+                raise ValueError
+                return None
+            if amount <= 0:
+                raise ValueError
+                return
+
+
             if self.firstTimeBet(name):  # Verifie si le joueur parie pour la premiere fois
                 self.soldes[name] = 1  # on donne 1 gold le cas echeant
 
             if self.soldIsOK(name, amount):  # Verifie que le joueur possede l argent misee
 
                 self.soldes[name] -= amount  # On retire du livre de compte la somme misee  
+
+                self.total_amount[joueur_prediction] += amount   # On garde en mémoire le total des sommes misées sur les issues différentes
 
                 if name not in self.compte:  # Si c'est la premiere mise faite durant CE pari
                     self.compte[name] = amount  # On inscrit la valeur pariee
@@ -138,6 +146,13 @@ class Bet:
 
     def result(self, resultat):  # Envoie d erreur si mauvais input
         if Bet.on_going_bet and not self.is_open:
+
+            ## Verification si les arguments sont correctements rentrés ##
+            if resultat != "win" and resultat != "lose":
+                raise ValueError
+                return None
+
+            ## Exécution de la fonction ##
             if resultat == "win":
                 winner = "win"
                 loser = "lose"
@@ -184,7 +199,7 @@ class Bet:
 
             Bet.on_going_bet = False
             self.is_open = False               # on supprime le bet a la fin des paris
-            self.total_amount = 0
+            self.total_amount = {"win": 0, "lose": 0}
             self.number_betteur = 0
             self.compte = {}
             self.predictions = {'win': [],
@@ -199,7 +214,7 @@ class Bet:
     def cancelBet(self):
         Bet.on_going_bet = False
         self.is_open = False
-        self.total_amount = 0
+        self.total_amount = {"win": 0, "lose": 0}
         self.number_betteur = 0
         self.predictions = {'win': [],
                             'lose': []}  # 'lose' : [list des joueurs ayant predit la defaite] 'win' : [list des
