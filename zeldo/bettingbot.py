@@ -20,7 +20,7 @@ import utils
 # vérifier les droits requis pour certaines commandes x
 # message de confimration lorsqu un bet a été réalisé
 
-# soldes_des_joueurs = {'manie' : 100 , 'riki' : 50, 'jakiro' : 120}
+#soldes_des_joueurs = {'manie' : 100 , 'riki' : 50, 'jakiro' : 120}
 
 # if 'soldes_joueurs.json' in request.POST:
 #    soldes_des_joueurs = json.loads(request.POST['mydata'])
@@ -160,8 +160,6 @@ class Bet:
                 winner = "lose"
                 loser = "win"
 
-            amount_to_distribut = 0
-            amount_bet_win = 0
 
             list_losers = self.predictions[loser]
             list_winners = self.predictions[winner]
@@ -169,16 +167,14 @@ class Bet:
             worst = []
 
             for joueur in list_losers:
-                amount_to_distribut += self.compte[joueur]
                 worst.append((joueur, self.compte[joueur]))
 
             for joueur in list_winners:  # On recredite le joueur de son pari
                 self.soldes[joueur] += self.compte[joueur]
-                amount_bet_win += self.compte[joueur]
 
             for joueur in list_winners:  # Calcul des gains supplementaires
-                gain = math.floor(amount_to_distribut * self.compte[joueur] / amount_bet_win) + max(
-                    math.floor(self.bet_interest * self.compte[joueur]), 1)
+                gain = math.floor(self.total_amount[loser] * self.compte[joueur] / self.total_amount[winner]) + max(
+                    math.floor(self.bet_interest * self.compte[joueur]), 1)   # total_amount[loser] represente la somme misée par les perdants et à redistribuer
                 self.soldes[joueur] += gain
                 best.append((joueur, gain))
 
