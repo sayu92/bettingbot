@@ -5,5 +5,6 @@ com={
    "!closebet": {"fun": "nvbet.closeBet()", "Needmod": True, "arg": 0},
    "!result": {"fun": "nvbet.result(arguments[0])", "Needmod": True, "arg": 1},
    "!cancelbet": {"fun": "nvbet.cancelBet()", "Needmod": True, "arg": 0},
-   "!points": {"fun": "nvbet.showPoints(username)", "Needmod": False, "arg": 0}
+   "!points": {"fun": "nvbet.showPoints(username)", "Needmod": False, "arg": 0},
+   "!rank": {"fun": "nvbet.rank()", "Needmod": False, "arg": 0}
 }

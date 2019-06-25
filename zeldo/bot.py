@@ -88,8 +88,6 @@ def main():
                 else:
                     print("Commande non répertoriée")
 
-            if message.strip() == "test":
-                print(cfg.oplist)
 
         sleep(1)
 

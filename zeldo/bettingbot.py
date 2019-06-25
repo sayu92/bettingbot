@@ -268,7 +268,16 @@ class Bet:
         utils.chat(self.socket, "{}: {} points ! {}".format(name, points, emote))
 
 
-    def rank():
+    def rank(self):
+        top = sorted(self.soldes.items(), key = lambda x : x[1], reverse= True)
+
+        mess =""
+        for i in range(5):
+            mess += "Rang {}: {}({}) | ".format(i+1, top[i][0], top[i][1])
+
+        utils.chat(self.socket, mess)
+
+
 
 
 if __name__ == '__main__':
