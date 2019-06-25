@@ -19,7 +19,7 @@ import utils
 # rajouter le mot clef "all" execption "ValueError"   x
 # vérifier les droits requis pour certaines commandes x
 # message de confimration lorsqu un bet a été réalisé x
-
+# remarque sur les scores : Les sommes misées ont été déduites des points totaux affichés
 
 #soldes_des_joueurs = {'manie' : 100 , 'riki' : 50, 'jakiro' : 120}
 
@@ -255,6 +255,7 @@ class Bet:
         emote = ""
         points = self.soldes[name]
 
+        ## Choix de l'emote en fonction du score
         if points < 10:
             emote = "LUL"
         elif 10 <= points < 100:
@@ -265,6 +266,10 @@ class Bet:
             emote="Kreygasm"
 
         utils.chat(self.socket, "{}: {} points ! {}".format(name, points, emote))
+
+
+    def rank():
+
 
 if __name__ == '__main__':
     nvbet = Bet()
