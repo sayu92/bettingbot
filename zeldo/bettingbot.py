@@ -10,15 +10,16 @@ import json
 import utils
 
 
-# ajouter les exceptions lorsqu'une valeur negative est ajoutee, float , ou autre structure
-# devoir close bet avant de faire result -
-# erreur lorsqu on pari alors qu un bet en cours
+# ajouter les exceptions lorsqu'une valeur negative est ajoutee, float , ou autre structure x
+# devoir close bet avant de faire result x
+# erreur lorsqu on pari alors qu un bet en cours x
 # quand mettre a jour le fichier
 # rajouer une commande pour voir l etat actuel du bet (somme pariés, cote etc)
 # tester la fonction cancel bet
-# rajouter le mot clef "all" execption "ValueError"
+# rajouter le mot clef "all" execption "ValueError"   x
 # vérifier les droits requis pour certaines commandes x
-# message de confimration lorsqu un bet a été réalisé
+# message de confimration lorsqu un bet a été réalisé x
+
 
 #soldes_des_joueurs = {'manie' : 100 , 'riki' : 50, 'jakiro' : 120}
 
@@ -39,12 +40,12 @@ class Bet:
         self.bet_interest = bet_interest
         self.total_amount = {"win": 0, "lose": 0}
         self.number_betteur = 0
-        self.compte = {}
+        self.compte = {}                # A remettre à 0 à chaque nouvelle ouverture de paris
         self.predictions = {'win': [],
                             'lose': []}  # 'lose' : [list des joueurs ayant predit la defaite] 'win' : [list des
         # joeurs pariant sur la victoire]
 
-        self.soldes = soldes_des_joueurs.copy()
+        self.soldes = soldes_des_joueurs.copy() # A garder ouvert tant que le bot tourne
 
 
     def openBet(self):
@@ -246,7 +247,24 @@ class Bet:
         utils.chat(self.socket, "Session de paris annulée BibleThump")
 
 
+    def showPoints(self, name):
+        ## Si le joueur n'a pas encore de ligne dans le registre
+        if self.firstTimeBet(name):
+            self.soldes[name] = 1  # on donne 1 gold le cas echeant
 
+        emote = ""
+        points = self.soldes[name]
+
+        if points < 10:
+            emote = "LUL"
+        elif 10 <= points < 100:
+            emote = "SeemsGood"
+        elif 100 <= points < 500:
+            emote = "PogChamp"
+        elif points >= 500:
+            emote="Kreygasm"
+
+        utils.chat(self.socket, "{}: {} points ! {}".format(name, points, emote))
 
 if __name__ == '__main__':
     nvbet = Bet()
