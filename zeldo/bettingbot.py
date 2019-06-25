@@ -97,17 +97,29 @@ class Bet:
         ## Ajouter un joueur ##
         if self.is_open:
 
+            if self.firstTimeBet(name):  # Verifie si le joueur parie pour la premiere fois
+                self.soldes[name] = 1  # on donne 1 gold le cas echeant
+
             ## Verification si les arguments sont correctements rentrés ##
             if joueur_prediction != "win" and joueur_prediction != "lose":
                 raise ValueError
                 return None
+
+            if amount == "all":
+                amount = self.soldes[name]
+
+            else:
+                try:
+                    amount = int(amount)
+
+                except:
+                    raise ValueError
+                    return None
+
             if amount <= 0:
                 raise ValueError
                 return
 
-
-            if self.firstTimeBet(name):  # Verifie si le joueur parie pour la premiere fois
-                self.soldes[name] = 1  # on donne 1 gold le cas echeant
 
             if self.soldIsOK(name, amount):  # Verifie que le joueur possede l argent misee
 

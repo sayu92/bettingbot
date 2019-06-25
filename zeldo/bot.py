@@ -76,7 +76,8 @@ def main():
                                 eval(cmd2[command_name].myFunction)
                             except:
                                 utils.chat(s, "Erreur lors de l'exécution de la commande")     # Essayer de remplacer ce bloc par une fonction
-
+                        else:
+                            print("pas les droits")
                     else:
                         arguments = message.split()[1:]
                         try:
